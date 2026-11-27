@@ -136,3 +136,122 @@ print("Bronze tables verified!")
 
 # COMMAND ----------
 
+
+from pyspark.sql import functions as F
+
+# Catalog configuration
+catalog = "workspace"
+
+# Source data directory
+raw_path = f"/Volumes/{catalog}/default/raw_data/"
+
+# List of datasets
+datasets = {
+    "customers": "customers.csv",
+    "orders": "orders.csv",
+    "order_items": "order_items.csv",
+    "products": "products.csv",
+    "payments": "order_payments.csv",
+    "reviews": "order_reviews.csv",
+    "sellers": "sellers.csv",
+    "geolocation": "geolocation.csv",
+    "category_translation": "product_category_name_translation.csv"
+}
+
+print("Dataset configuration completed!")
+
+
+# COMMAND ----------
+
+
+from pyspark.sql import functions as F
+
+def ingest_to_bronze(table_name, file_name):
+
+    file_path = raw_path + file_name
+
+    print(f"Starting ingestion: {table_name}")
+
+    # Read CSV without automatic type inference
+    df = (
+        spark.read
+        .option("header", True)
+        .option("inferSchema", False)
+        .csv(file_path)
+    )
+
+    # Preserve postal codes as strings
+    if table_name == "customers":
+        df = df.withColumn(
+            "customer_zip_code_prefix",
+            F.col("customer_zip_code_prefix").cast("string")
+        )
+
+    # Write to Delta
+    (
+        df.write
+        .format("delta")
+        .mode("overwrite")
+        .option("overwriteSchema", "true")
+        .saveAsTable(f"{catalog}.bronze.{table_name}")
+    )
+
+    record_count = df.count()
+
+    print(f"Completed: {table_name}")
+    print(f"Records loaded: {record_count}")
+
+    return record_count
+
+
+
+# COMMAND ----------
+
+
+ingestion_results = []
+
+for table_name, file_name in datasets.items():
+
+    record_count = ingest_to_bronze(
+        table_name,
+        file_name
+    )
+
+    ingestion_results.append(
+        (table_name, record_count)
+    )
+
+print("All datasets processed!")
+
+
+# COMMAND ----------
+
+
+results_df = spark.createDataFrame(
+    ingestion_results,
+    ["table_name", "record_count"]
+)
+
+display(results_df)
+
+
+
+# COMMAND ----------
+
+# SHOW TABLES IN workspace.bronze;
+display(spark.sql("SHOW TABLES IN workspace.bronze"))
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC SELECT *
+# MAGIC FROM workspace.bronze.customers
+# MAGIC LIMIT 10;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC SELECT COUNT(*) 
+# MAGIC FROM workspace.bronze.orders;
