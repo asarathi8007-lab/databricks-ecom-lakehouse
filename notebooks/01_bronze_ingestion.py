@@ -255,3 +255,66 @@ display(spark.sql("SHOW TABLES IN workspace.bronze"))
 # MAGIC
 # MAGIC SELECT COUNT(*) 
 # MAGIC FROM workspace.bronze.orders;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SHOW TABLES IN workspace.bronze;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC DESCRIBE DETAIL workspace.bronze.orders;
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC SELECT 'customers' AS table_name,
+# MAGIC        COUNT(*) AS total_records
+# MAGIC FROM workspace.bronze.customers
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'orders', COUNT(*)
+# MAGIC FROM workspace.bronze.orders
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'order_items', COUNT(*)
+# MAGIC FROM workspace.bronze.order_items
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'products', COUNT(*)
+# MAGIC FROM workspace.bronze.products
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'payments', COUNT(*)
+# MAGIC FROM workspace.bronze.payments
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'reviews', COUNT(*)
+# MAGIC FROM workspace.bronze.reviews
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'sellers', COUNT(*)
+# MAGIC FROM workspace.bronze.sellers
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'geolocation', COUNT(*)
+# MAGIC FROM workspace.bronze.geolocation
+# MAGIC
+# MAGIC UNION ALL
+# MAGIC
+# MAGIC SELECT 'category_translation', COUNT(*)
+# MAGIC FROM workspace.bronze.category_translation;
+
+# COMMAND ----------
+
