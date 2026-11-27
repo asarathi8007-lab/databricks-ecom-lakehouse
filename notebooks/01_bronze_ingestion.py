@@ -177,6 +177,9 @@ def ingest_to_bronze(table_name, file_name):
         spark.read
         .option("header", True)
         .option("inferSchema", False)
+        .option("multiLine", "true") \
+        .option("quote", '"') \
+        .option("escape", '"')
         .csv(file_path)
     )
 
@@ -200,7 +203,6 @@ def ingest_to_bronze(table_name, file_name):
 
     print(f"Completed: {table_name}")
     print(f"Records loaded: {record_count}")
-
     return record_count
 
 
@@ -315,6 +317,3 @@ display(spark.sql("SHOW TABLES IN workspace.bronze"))
 # MAGIC
 # MAGIC SELECT 'category_translation', COUNT(*)
 # MAGIC FROM workspace.bronze.category_translation;
-
-# COMMAND ----------
-
